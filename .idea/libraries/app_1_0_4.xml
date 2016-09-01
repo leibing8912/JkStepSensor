@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="app-1.0.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/cn.jianke.customcache/app/1.0.4/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/cn.jianke.customcache/app/1.0.4/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/cn.jianke.customcache/app/1.0.4/db5d271e07fe8f75bd61a55b5b5117071481e61/app-1.0.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
