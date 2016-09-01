@@ -193,9 +193,9 @@ public class StepService extends Service implements SensorEventListener {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), 0);
         builder.setContentIntent(contentIntent);
-        builder.setTicker("JkStepSensor");
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setContentTitle("JkStepSensor");
+        builder.setTicker("健客计步");
+        builder.setSmallIcon(R.mipmap.icon);
+        builder.setContentTitle("健客计步");
         //设置不可清除
         builder.setOngoing(true);
         builder.setContentText(content);

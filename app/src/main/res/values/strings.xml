@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">JkStepSensor</string>
+    <string name="app_name">健客计步</string>
+    <string name="comm_quit">再按一次退出健客计步</string>
 </resources>

@@ -14,12 +14,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:text="启动服务"/>
+            android:text="开始计步"/>
     <Button
             android:id="@+id/btn_stop_service"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/btn_start_service"
-            android:text="关闭服务"/>
+            android:text="停止计步"/>
 </LinearLayout>

@@ -8,13 +8,23 @@ android {
         applicationId "cn.jianke.jkstepsensor"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 1000
+        versionName "1.0.0"
     }
     buildTypes {
+        debug {
+            buildConfigField("boolean", "ISRELEASE", "false")
+        }
+        beta {
+            buildConfigField("boolean", "ISRELEASE", "false")
+        }
         release {
+            // 是否进行混淆打包
             minifyEnabled false
+            shrinkResources false
+            // 混淆文件的位置
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("boolean", "ISRELEASE", "true")
         }
     }
 }
@@ -25,4 +35,108 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.0'
     // 本地缓存框架
     compile 'cn.jianke.customcache:app:1.0.4'
+}
+
+assembleRelease.doLast{
+    def newModifyVersion = Integer.parseInt(getModifyVersion()) + 1;
+    def newPakageTime = getNow();
+    def versionName = android.defaultConfig.versionName;
+    def betaVersion = getBetaVersion();
+    updatePropFile(newModifyVersion, newPakageTime, versionName, betaVersion);
+}
+
+assembleBeta.doLast{
+    def newModifyVersion = Integer.parseInt(getModifyVersion()) + 1;
+    def newPakageTime = getNow();
+    def versionName = android.defaultConfig.versionName;
+    def betaVersion = Integer.parseInt(getBetaVersion()) + 1;
+    updatePropFile(newModifyVersion, newPakageTime, versionName, betaVersion);
+
+}
+
+//获取配置文件
+def getPropFile(){
+    return file('./src/main/assets/app_config.properties');
+}
+
+//获取每日修订版本
+def getModifyVersion(){
+    File propFile = getPropFile();
+    if (!propFile.exists()) {
+        return "1";
+    }
+    //获取配置
+    def Properties prop = new Properties();
+    prop.load(new FileInputStream(propFile));
+    def lastPackTime = prop.getProperty('PACK_TIME');
+    def buildVerion = prop.getProperty('MODIFIED_VERSION');
+    if (getNow() != lastPackTime)
+        buildVerion = "1";
+    return buildVerion;
+}
+
+//获取每日修订版本
+def getBetaVersion(){
+    File propFile = getPropFile();
+    if (!propFile.exists()) {
+        return "0";
+    }
+    //获取配置
+    def Properties prop = new Properties();
+    prop.load(new FileInputStream(propFile));
+    def lastVersion = prop.getProperty('LAST_VERSION');
+    def betaVerion = prop.getProperty('BETA_VERSION');
+    if (android.defaultConfig.versionName != lastVersion)
+        betaVerion = "0";
+    return betaVerion;
+}
+
+//更新配置文件
+def updatePropFile(modifyVersion, packageTime, versionName, betaVerion) {
+    File propFile = getPropFile();
+    if (!propFile.exists()){
+        propFile.createNewFile();
+    }
+    def printWriter = propFile.newPrintWriter();
+    printWriter.write("# 修正版本号，每天清零" + '\n');
+    printWriter.write('MODIFIED_VERSION = ' + modifyVersion + '\n');
+    printWriter.write('PACK_TIME = ' + packageTime + '\n');
+    printWriter.write('LAST_VERSION = ' + versionName + '\n');
+    printWriter.write('BETA_VERSION = ' + betaVerion + '\n');
+    printWriter.flush()
+    printWriter.close()
+}
+
+//获取当前时间
+def getNow() {
+    return new Date().format("yyyyMMdd")
+}
+
+android.applicationVariants.all{ variant ->
+    nameApk(variant);
+}
+
+//定义输出文件名
+def nameApk(variant) {
+    def buildType = variant.buildType.name;
+    def outputFile = variant.outputs[0].outputFile;
+    def versionName = android.defaultConfig.versionName;
+    def releaseTime = getNow();
+    def modifyVersion = getModifyVersion();
+    def fileName = "jk_" + versionName + ".build-" + releaseTime + "" +modifyVersion;
+    switch (buildType) {
+        case "debug":
+            fileName += ".dev.apk";
+            break;
+        case "beta":
+            fileName += ".beta.apk";
+            break;
+        case "release":
+            fileName += ".release.apk";
+            break;
+        default:
+            fileName += ".apk";
+            break;
+    }
+    variant.outputs[0].outputFile = new File(outputFile.parent, fileName)
 }

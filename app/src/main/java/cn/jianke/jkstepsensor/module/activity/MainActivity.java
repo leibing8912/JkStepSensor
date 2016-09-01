@@ -10,9 +10,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import cn.jianke.jkstepsensor.R;
 import cn.jianke.jkstepsensor.common.Constant;
 import cn.jianke.jkstepsensor.common.data.DataCache;
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
     private Handler delayHandler = new Handler(this);
     // 循环取当前时刻步数的间隔时间
     private long TIME_INTERVAL = 1000;
+    // 确定是否退出app
+    private int i = 0;
     // 服务连接
     private ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -154,5 +159,19 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
             // 判断是否
             isStop = data.getBooleanExtra(SwitchActivity.IS_SERVICE_STOP_KEY, false);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount()==0){
+            if(i==0){
+                i++;
+                String quit = getApplication().getString(R.string.comm_quit);
+                Toast.makeText(MainActivity.this, quit, Toast.LENGTH_SHORT).show();
+            }else if(i==1){
+                finish();
+            }
+        }
+        return true;
     }
 }

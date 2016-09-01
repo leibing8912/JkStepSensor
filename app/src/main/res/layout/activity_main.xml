@@ -12,15 +12,32 @@
         android:id="@+id/btn_turnto_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"
-        android:text="跳转页面" />
-    <TextView
-        android:id="@+id/tv_step_count"
+        android:text="设置"
+        android:layout_alignParentRight="true"/>
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="今日行走"
+            android:textSize="18sp"/>
+        <TextView
+            android:id="@+id/tv_step_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="12"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="步"
+            android:paddingTop="8dp"
+            android:textSize="18sp"/>
+    </LinearLayout>
 </RelativeLayout>
