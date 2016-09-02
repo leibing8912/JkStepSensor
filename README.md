@@ -187,6 +187,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
 ```
 以上注释已经非常清晰,如有不明白之处请联系.
 
+demo地址:
+ [JkStepSensorDemo Link](https://github.com/leibing8912/JkStepSensorDemo/tree/master).
+
 
 * 邮箱:leibing1989@126.com
 * QQ:872721111
