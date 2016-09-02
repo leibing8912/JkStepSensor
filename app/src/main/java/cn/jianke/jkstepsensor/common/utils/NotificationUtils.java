@@ -6,9 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.NotificationCompat;
-
 import cn.jianke.customcache.utils.StringUtil;
 import cn.jianke.jkstepsensor.R;
+import cn.jianke.jkstepsensor.module.service.StepService;
 
 /**
  * @className: NotificationUtils
@@ -65,18 +65,17 @@ public class NotificationUtils {
      * @param isOngoing 是否不可消除 true为不可消除，false为可消除
      * @param notifyId
      * @param icon 头像
-     * @param priority 优先级
      * @return
      */
     public void updateNotification(
                                     String content, String ticker ,String contentTitle,
                                    Context context, Class pendingClass,
                                    boolean isOngoing, int notifyId,
-                                   int icon,int priority){
+                                   int icon){
         if (builder == null || nm == null)
             return;
         // 设置优化级
-        builder.setPriority(priority);
+        builder.setPriority(Notification.PRIORITY_MIN);
         // 设置点击通知栏可以跳转到的Activity
         if (content != null && pendingClass != null) {
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
@@ -84,13 +83,17 @@ public class NotificationUtils {
             builder.setContentIntent(contentIntent);
         }
         // 设置ticker
-        if (StringUtil.isNotEmpty(ticker))
+        if (StringUtil.isEmpty(ticker))
+            ticker = "健客计步";
             builder.setTicker(ticker);
         // 设置icon
+        if (icon == StepService.INT_ERROR)
+            icon = R.mipmap.ic_launcher;
         builder.setSmallIcon(icon);
         // 设置标题
-        if (StringUtil.isNotEmpty(contentTitle))
-            builder.setContentTitle(contentTitle);
+        if (StringUtil.isEmpty(contentTitle))
+            contentTitle = "健客计步";
+        builder.setContentTitle(contentTitle);
         // 设置不可清除
         builder.setOngoing(isOngoing);
         // 设置内容
@@ -99,6 +102,8 @@ public class NotificationUtils {
         // 创建notification
         Notification notification = builder.build();
         // 设置notifyId
+        if (notifyId == StepService.INT_ERROR)
+            notifyId = R.string.app_name;
         nm.notify(notifyId, notification);
     }
 
@@ -119,7 +124,7 @@ public class NotificationUtils {
             Context context, Class pendingClass){
         updateNotification(content, ticker, contentTitle,
                 context, pendingClass,true,
-                R.string.app_name,R.mipmap.ic_launcher,Notification.PRIORITY_MIN);
+                R.string.app_name,R.mipmap.ic_launcher);
     }
 
     /**
@@ -136,7 +141,7 @@ public class NotificationUtils {
             String content, String ticker ,String contentTitle){
             updateNotification(content,ticker,contentTitle,
                     null,null,true,
-                    R.string.app_name, R.mipmap.ic_launcher,Notification.PRIORITY_MIN);
+                    R.string.app_name, R.mipmap.ic_launcher);
     }
 
     /**
@@ -154,7 +159,7 @@ public class NotificationUtils {
             String content, String ticker ,String contentTitle,int icon){
         updateNotification(content,ticker,contentTitle,
                 null,null,true,
-                R.string.app_name,icon,Notification.PRIORITY_MIN);
+                R.string.app_name,icon);
     }
 
     /**
@@ -169,7 +174,7 @@ public class NotificationUtils {
             String content){
         updateNotification(content,null,null,
                 null,null,true,
-                R.string.app_name,R.mipmap.icon,Notification.PRIORITY_MIN);
+                R.string.app_name,R.mipmap.icon);
     }
 
     /**

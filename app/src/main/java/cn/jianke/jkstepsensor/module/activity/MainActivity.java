@@ -18,9 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import cn.jianke.jkstepsensor.R;
 import cn.jianke.jkstepsensor.common.Constant;
-import cn.jianke.jkstepsensor.common.data.DataCache;
-import cn.jianke.jkstepsensor.common.data.bean.StepModel;
-import cn.jianke.jkstepsensor.common.utils.NotificationUtils;
 import cn.jianke.jkstepsensor.module.service.StepService;
 
 /**
@@ -70,16 +67,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         stepCountTv = (TextView) findViewById(R.id.tv_step_count);
         // onClick
         findViewById(R.id.btn_turnto_switch).setOnClickListener(this);
-        // 读取缓存更新
-        DataCache.getInstance().getTodayCache(this, new DataCache.DataCacheListener() {
-            @Override
-            public void readListCache(StepModel stepModel) {
-                if (stepModel != null){
-                    stepCountTv.setTextColor(getResources().getColor(R.color.colorAccent));
-                    stepCountTv.setText(stepModel.getStep());
-                }
-            }
-        });
     }
 
     @Override
@@ -99,8 +86,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
                 // 更新界面上的步数
                 stepCountTv.setTextColor(getResources().getColor(R.color.colorPrimary));
                 stepCountTv.setText(stepCount + "");
-                // 更新通知栏
-                NotificationUtils.getInstance(this).updateNotification("今日行走" + stepCount + "步");
                 // 循环向服务请求数据
                 delayHandler.sendEmptyMessageDelayed(Constant.REQUEST_SERVER, TIME_INTERVAL);
                 break;
@@ -108,6 +93,15 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
                 try {
                     Message serverMsg = Message.obtain(null, Constant.MSG_FROM_CLIENT);
                     serverMsg.replyTo = replyMessenger;
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Constant.CONTENT_KEY, "今日行走");
+                    bundle.putSerializable(Constant.TICKER_KEY, "健客计步");
+                    bundle.putSerializable(Constant.CONTENTTITLE_KEY, "健客计步");
+                    bundle.putSerializable(Constant.PENDINGCLASS_KEY, MainActivity.class);
+                    bundle.putSerializable(Constant.ISONGOING_KEY, true);
+                    bundle.putSerializable(Constant.ICON_KEY,R.mipmap.icon);
+                    bundle.putSerializable(Constant.NOTIFYID_KEY, R.string.app_name);
+                    serverMsg.setData(bundle);
                     messenger.send(serverMsg);
                 } catch (RemoteException e) {
                     e.printStackTrace();

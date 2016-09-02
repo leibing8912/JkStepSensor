@@ -1,7 +1,6 @@
 package cn.jianke.jkstepsensor.module.service;
 
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,13 +17,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import java.util.Date;
+import cn.jianke.customcache.utils.StringUtil;
 import cn.jianke.jkstepsensor.common.Constant;
 import cn.jianke.jkstepsensor.common.data.DataCache;
 import cn.jianke.jkstepsensor.common.data.bean.StepModel;
 import cn.jianke.jkstepsensor.common.utils.DateUtils;
+import cn.jianke.jkstepsensor.common.utils.NotificationUtils;
 import cn.jianke.jkstepsensor.module.core.StepDcretor;
 
 /**
@@ -37,6 +37,8 @@ import cn.jianke.jkstepsensor.module.core.StepDcretor;
 public class StepService extends Service implements SensorEventListener {
     // TAG
     private final String TAG = "StepService";
+    // 默认int错误码
+    public static final int INT_ERROR = -12;
     // 停止广播动作
     public static final String ACTION_STOP_SERVICE = "action_stop_service";
     // step key
@@ -53,6 +55,8 @@ public class StepService extends Service implements SensorEventListener {
     private StepModel mStepModel;
     // 计步服务广播
     private BroadcastReceiver stepServiceReceiver;
+    // 是否手动停止服务
+    private boolean isNeedStopService = false;
 
     /**
      * @className: MsgHandler
@@ -68,6 +72,8 @@ public class StepService extends Service implements SensorEventListener {
                     try {
                         // 缓存数据
                         cacheStepData(StepService.this,StepDcretor.CURRENT_STEP + "");
+                        // 更新通知栏
+                        updateNotification(msg.getData());
                         // 回复消息给Client
                         Messenger messenger = msg.replyTo;
                         Message replyMsg = Message.obtain(null, Constant.MSG_FROM_SERVER);
@@ -81,6 +87,61 @@ public class StepService extends Service implements SensorEventListener {
                     break;
                 default:
                     super.handleMessage(msg);
+            }
+        }
+    }
+
+    /**
+     * 更新通知栏
+     * @author leibing
+     * @createTime 2016/09/02
+     * @lastModify 2016/09/02
+     * @param bundle 数据
+     * @return
+     */
+    private void updateNotification(Bundle bundle) {
+        if (bundle == null) {
+            NotificationUtils.getInstance(StepService.this).
+                    updateNotification("今日行走" + StepDcretor.CURRENT_STEP + "步");
+        }else {
+            // 内容
+            String content = (String) bundle.getSerializable(Constant.CONTENT_KEY);
+            // ticker
+            String ticker = (String) bundle.getSerializable(Constant.TICKER_KEY);
+            // 标题
+            String contentTile = (String) bundle.getSerializable(Constant.CONTENTTITLE_KEY);
+            // 需要跳转的Activity
+            Class pendingClass = (Class) bundle.getSerializable(Constant.PENDINGCLASS_KEY);
+            // 是否不可取消
+            boolean isOngoing = true;
+            if (bundle.getSerializable(Constant.ISONGOING_KEY) != null){
+                isOngoing = (boolean) bundle.getSerializable(Constant.ISONGOING_KEY);
+            }
+            // 头像
+            int icon = INT_ERROR;
+            if (bundle.getSerializable(Constant.ICON_KEY) != null){
+                icon = (int) bundle.getSerializable(Constant.ICON_KEY);
+            }
+            // id
+            int notifyId = INT_ERROR;
+            if (bundle.getSerializable(Constant.NOTIFYID_KEY) != null){
+                notifyId = (int) bundle.getSerializable(Constant.NOTIFYID_KEY);
+            }
+            if (StringUtil.isEmpty(content)
+                    || StringUtil.isEmpty(ticker)
+                    || StringUtil.isEmpty(contentTile)){
+                NotificationUtils.getInstance(StepService.this).
+                        updateNotification("今日行走" + StepDcretor.CURRENT_STEP + "步");
+            }else {
+                NotificationUtils.getInstance(StepService.this).
+                        updateNotification(content + StepDcretor.CURRENT_STEP + "步",
+                                ticker,
+                                contentTile,
+                                StepService.this,
+                                pendingClass,
+                                isOngoing,
+                                notifyId,
+                                icon);
             }
         }
     }
@@ -115,6 +176,7 @@ public class StepService extends Service implements SensorEventListener {
                 if (ACTION_STOP_SERVICE.equals(action)){
                     Log.v(TAG,"停止服务");
                     // 停止服务
+                    isNeedStopService = true;
                     StepService.this.stopSelf();
                 }
             }
@@ -276,7 +338,13 @@ public class StepService extends Service implements SensorEventListener {
         unregisterReceiver(stepServiceReceiver);
         // 停止计步器
         stopStepDetector();
-
+        // 非手动停止服务,则自动重启服务
+        if (!isNeedStopService){
+            Intent intent = new Intent(this, StepService.class);
+            startService(intent);
+        }else {
+            isNeedStopService = false;
+        }
         Log.v(TAG,"onDestroy");
         super.onDestroy();
     }
