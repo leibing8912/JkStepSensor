@@ -20,6 +20,7 @@ import cn.jianke.jkstepsensor.R;
 import cn.jianke.jkstepsensor.common.Constant;
 import cn.jianke.jkstepsensor.common.data.DataCache;
 import cn.jianke.jkstepsensor.common.data.bean.StepModel;
+import cn.jianke.jkstepsensor.common.utils.NotificationUtils;
 import cn.jianke.jkstepsensor.module.service.StepService;
 
 /**
@@ -94,10 +95,13 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
     public boolean handleMessage(Message message) {
         switch (message.what) {
             case Constant.MSG_FROM_SERVER:
-                // 更新界面上的步数
                 int stepCount = message.getData().getInt(StepService.STEP_KEY);
+                // 更新界面上的步数
                 stepCountTv.setTextColor(getResources().getColor(R.color.colorPrimary));
                 stepCountTv.setText(stepCount + "");
+                // 更新通知栏
+                NotificationUtils.getInstance(this).updateNotification("今日行走" + stepCount + "步");
+                // 循环向服务请求数据
                 delayHandler.sendEmptyMessageDelayed(Constant.REQUEST_SERVER, TIME_INTERVAL);
                 break;
             case Constant.REQUEST_SERVER:

@@ -1,9 +1,7 @@
 package cn.jianke.jkstepsensor.module.service;
 
 import android.annotation.TargetApi;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,12 +21,10 @@ import android.os.RemoteException;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import java.util.Date;
-import cn.jianke.jkstepsensor.R;
 import cn.jianke.jkstepsensor.common.Constant;
 import cn.jianke.jkstepsensor.common.data.DataCache;
 import cn.jianke.jkstepsensor.common.data.bean.StepModel;
 import cn.jianke.jkstepsensor.common.utils.DateUtils;
-import cn.jianke.jkstepsensor.module.activity.MainActivity;
 import cn.jianke.jkstepsensor.module.core.StepDcretor;
 
 /**
@@ -49,10 +45,6 @@ public class StepService extends Service implements SensorEventListener {
     private SensorManager sensorManager;
     // 计步核心类
     private StepDcretor stepDetector;
-    // 通知栏管理
-    private NotificationManager nm;
-    // 通知栏builder
-    private NotificationCompat.Builder builder;
     // 自定义Handler
     private MsgHandler msgHandler = new MsgHandler();
     // Messenger 用于跨进程通信
@@ -76,7 +68,7 @@ public class StepService extends Service implements SensorEventListener {
                     try {
                         // 缓存数据
                         cacheStepData(StepService.this,StepDcretor.CURRENT_STEP + "");
-
+                        // 回复消息给Client
                         Messenger messenger = msg.replyTo;
                         Message replyMsg = Message.obtain(null, Constant.MSG_FROM_SERVER);
                         Bundle bundle = new Bundle();
@@ -151,19 +143,6 @@ public class StepService extends Service implements SensorEventListener {
     }
 
     /**
-     * 更新通知栏并缓存数据
-     * @author leibing
-     * @createTime 2016/09/01
-     * @lastModify 2016/09/01
-     * @param
-     * @return
-     */
-    public void notificationAndCache(){
-        // 更新通知栏
-        updateNotification("今日步数：" + StepDcretor.CURRENT_STEP + " 步");
-    }
-
-    /**
      * 缓存计步数据
      * @author leibing
      * @createTime 2016/08/31
@@ -177,35 +156,6 @@ public class StepService extends Service implements SensorEventListener {
         mStepModel.setDate(DateUtils.simpleDateFormat(new Date()));
         mStepModel.setStep(stepCount);
         DataCache.getInstance().addStepCache(context, mStepModel);
-    }
-
-    /**
-     * 更新通知
-     * @author leibing
-     * @createTime 2016/08/31
-     * @lastModify 2016/08/31
-     * @param content 内容
-     * @return
-     */
-    private void updateNotification(String content) {
-        builder = new NotificationCompat.Builder(this);
-        builder.setPriority(Notification.PRIORITY_MIN);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MainActivity.class), 0);
-        builder.setContentIntent(contentIntent);
-        builder.setTicker("健客计步");
-        builder.setSmallIcon(R.mipmap.icon);
-        builder.setContentTitle("健客计步");
-        //设置不可清除
-        builder.setOngoing(true);
-        builder.setContentText(content);
-        Notification notification = builder.build();
-
-        startForeground(0, notification);
-        nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(R.string.app_name, notification);
-
-        Log.v(TAG, "更新通知");
     }
 
     @Override
@@ -306,16 +256,12 @@ public class StepService extends Service implements SensorEventListener {
 
                     @Override
                     public void onChange() {
-                        // 更新通知栏并缓存数据
-                        notificationAndCache();
                     }
                 });
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        // 更新通知栏并缓存数据
-        notificationAndCache();
     }
 
     @Override
