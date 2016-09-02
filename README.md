@@ -51,7 +51,7 @@ lvy:
  */
 public class MainActivity extends AppCompatActivity implements Handler.Callback,View.OnClickListener{
     // 显示计步
-    private TextView mStepCountTv;
+    private TextView mStepCountTv,mContentTipTv,mStepTipTv;
     // 开始停止计步按钮
     private Button mStartStepBtn, mStopStepBtn;
     // 用于与计步服务通信
@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
     private Handler delayHandler = new Handler(this);
     // 循环取当前时刻步数的间隔时间
     private long TIME_INTERVAL = 1000;
+    // 确定是否退出app
+    private int i = 0;
     // 服务连接
     private ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -86,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
                 // 收到从服务端发来的计步数
                 int stepCount = message.getData().getInt(StepService.STEP_KEY);
                 // 更新界面上的步数
+                mStepTipTv.setVisibility(View.VISIBLE);
+                mContentTipTv.setVisibility(View.VISIBLE);
                 mStepCountTv.setTextColor(getResources().getColor(cn.jianke.jkstepsensor.R.color.colorPrimary));
                 mStepCountTv.setText(stepCount + "");
                 // 循环向服务端请求数据
@@ -120,11 +124,15 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         setContentView(R.layout.activity_main);
         // findView
         mStepCountTv = (TextView) findViewById(R.id.tv_step_count);
+        mContentTipTv = (TextView) findViewById(R.id.tv_content_tip);
+        mStepTipTv = (TextView) findViewById(R.id.tv_step_tip);
         mStartStepBtn = (Button) findViewById(R.id.btn_start_step);
         mStopStepBtn = (Button) findViewById(R.id.btn_stop_step);
         // onClick
         findViewById(R.id.btn_start_step).setOnClickListener(this);
         findViewById(R.id.btn_stop_step).setOnClickListener(this);
+        // 开始计步
+        startService();
     }
 
     @Override
@@ -162,6 +170,14 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         startService(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        // 解绑服务
+        if (conn != null)
+            unbindService(conn);
+        super.onDestroy();
+    }
+
     /**
      * 停止服务
      * @author leibing
@@ -182,6 +198,21 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         Intent intent = new Intent();
         intent.setAction(StepService.ACTION_STOP_SERVICE);
         sendBroadcast(intent);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        // 再按一次退出app
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount()==0){
+            if(i==0){
+                i++;
+                String quit = getApplication().getString(R.string.comm_quit);
+                Toast.makeText(MainActivity.this, quit, Toast.LENGTH_SHORT).show();
+            }else if(i==1){
+                finish();
+            }
+        }
+        return true;
     }
 }
 ```
