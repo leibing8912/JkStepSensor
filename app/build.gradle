@@ -126,7 +126,7 @@ def nameApk(variant) {
     def fileName = "jk_" + versionName + ".build-" + releaseTime + "" +modifyVersion;
     switch (buildType) {
         case "debug":
-            fileName = "jk_" + versionName + ".dev.apk";
+            fileName += ".dev.apk";
             break;
         case "beta":
             fileName += ".beta.apk";
