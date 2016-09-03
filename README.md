@@ -20,7 +20,7 @@
 gradle:
 ```java
 dependencies {
-    compile 'cn.jianke.jkstepsensor:app:1.0.5'
+    compile 'cn.jianke.jkstepsensor:app:1.0.6'
 }
 ```
 maven:
