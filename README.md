@@ -28,14 +28,14 @@ maven:
 <dependency>
   <groupId>cn.jianke.jkstepsensor</groupId>
   <artifactId>app</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <type>pom</type>
 </dependency>
 ```
 
 lvy:
 ```java
-<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.5'>
+<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.6'>
   <artifact name='$AID' ext='pom'></artifact>
 </dependency>
 ```
