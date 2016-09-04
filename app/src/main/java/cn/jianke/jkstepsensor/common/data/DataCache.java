@@ -62,7 +62,7 @@ public class DataCache {
      * @param mStepModel 计步数据
      * @return
      */
-    public void addStepCache(Context context, final StepModel mStepModel){
+    public void addStepCache(final Context context, final StepModel mStepModel){
         if (mSpLocalCache != null){
             // 读取缓存
             mSpLocalCache.read(context, new SpLocalCache.LocalCacheCallBack() {
@@ -72,30 +72,38 @@ public class DataCache {
                         mListCache = (ListCache<StepModel>) obj;
                         if (mListCache != null) {
                             mCacheList = mListCache.getObjList();
-                            if (mCacheList == null || mCacheList.size() == 0){
+                            if (mCacheList != null ){
+                                if (mCacheList.size() != 0){
+                                for (StepModel stepModel : mCacheList) {
+                                    if (mStepModel.getDate().equals(stepModel.getDate())) {
+                                        // 新步数与旧步数差值不能为负数
+                                        int cha = Integer.parseInt(mStepModel.getStep())
+                                                - Integer.parseInt(stepModel.getStep());
+                                        if (cha >= 0) {
+                                            mCacheList.remove(stepModel);
+                                        }
+                                        break;
+                                        }
+                                    }
+                                }
+                                mCacheList.add(mStepModel);
+                            }else {
+                                mCacheList = new ArrayList<>();
                                 mCacheList.add(mStepModel);
                             }
-                            for (StepModel stepModel : mCacheList) {
-                                if (mStepModel.getDate().equals(stepModel.getDate()) ) {
-                                    // 新步数与旧步数差值不能为负数
-                                    int cha = Integer.parseInt(mStepModel.getStep())
-                                            - Integer.parseInt(stepModel.getStep());
-                                    if (cha >= 0) {
-                                        mCacheList.remove(stepModel);
-                                        mCacheList.add(mStepModel);
-                                    }
-                                    break;
-                                }
-                            }
+                        }else {
+                            mCacheList = new ArrayList<>();
+                            mCacheList.add(mStepModel);
                         }
                     }else {
+                        mCacheList = new ArrayList<>();
                         mCacheList.add(mStepModel);
                     }
+                    // 保存缓存
+                    mListCache.setObjList(mCacheList);
+                    mSpLocalCache.save(context, mListCache);
                 }
             });
-            // 保存缓存
-            mListCache.setObjList(mCacheList);
-            mSpLocalCache.save(context, mListCache);
         }
     }
 
@@ -134,19 +142,32 @@ public class DataCache {
                         mListCache = (ListCache<StepModel>) obj;
                         if (mListCache != null && mDataCacheListener != null){
                             mCacheList = mListCache.getObjList();
-                            for (StepModel stepModel : mCacheList) {
-                                if (dateStr.equals(stepModel.getDate())) {
-                                    mDataCacheListener.readListCache(stepModel);
-                                    return;
+                            if (mCacheList != null && mCacheList.size() != 0) {
+                                // 遍历次数,用于判断是否为当天数据
+                                int count = 0;
+                                for (StepModel stepModel : mCacheList) {
+                                    if (dateStr.equals(stepModel.getDate())) {
+                                        mDataCacheListener.readListCache(stepModel);
+                                        break;
+                                    }
+                                    count++;
                                 }
+                                if (count >= mCacheList.size()) {
+                                    // 当缓存无数据时,默认缓存步数为0步
+                                    StepModel model = new StepModel();
+                                    model.setDate(dateStr);
+                                    model.setStep(0 + "");
+                                    mDataCacheListener.readListCache(model);
+                                }
+                            }else {
+                                // 当缓存无数据时,默认缓存步数为0步
+                                StepModel model = new StepModel();
+                                model.setDate(dateStr);
+                                model.setStep(0 + "");
+                                mDataCacheListener.readListCache(model);
                             }
                         }
                     }
-                    // 当缓存无数据时,默认缓存步数为0步
-                    StepModel model = new StepModel();
-                    model.setDate(dateStr);
-                    model.setStep(0 + "");
-                    mDataCacheListener.readListCache(model);
                 }
             });
         }
