@@ -20,7 +20,7 @@
 gradle:
 ```java
 dependencies {
-    compile 'cn.jianke.jkstepsensor:app:1.0.6'
+    compile 'cn.jianke.jkstepsensor:app:1.0.8'
 }
 ```
 maven:
@@ -28,14 +28,14 @@ maven:
 <dependency>
   <groupId>cn.jianke.jkstepsensor</groupId>
   <artifactId>app</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.8</version>
   <type>pom</type>
 </dependency>
 ```
 
 lvy:
 ```java
-<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.6'>
+<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.8'>
   <artifact name='$AID' ext='pom'></artifact>
 </dependency>
 ```
