@@ -77,8 +77,6 @@ public class StepService extends Service implements SensorEventListener {
                         cacheStepData(StepService.this,StepDcretor.CURRENT_STEP + "");
                         // 更新通知栏
                         updateNotification(msg.getData());
-                        // 启动服务为前台服务( 让该service前台运行,避免手机休眠时系统自动杀掉该服务)
-                        startForeground();
                         // 回复消息给Client
                         Messenger messenger = msg.replyTo;
                         Message replyMsg = Message.obtain(null, Constant.MSG_FROM_SERVER);
@@ -173,18 +171,6 @@ public class StepService extends Service implements SensorEventListener {
         startForeground(0, notification);
     }
 
-    /**
-     * 停止服务为前台服务(手动停止服务的时候能够及时杀死当前服务)
-     * @author leibing
-     * @createTime 2016/09/06
-     * @lastModify 2016/09/06
-     * @param
-     * @return
-     */
-    public void stopForeground(){
-        stopForeground(true);
-    }
-
   @Override
     public void onCreate() {
         super.onCreate();
@@ -192,6 +178,8 @@ public class StepService extends Service implements SensorEventListener {
         initStepServiceReceiver();
         // 启动计步
         startStep();
+        // 启动服务为前台服务( 让该service前台运行,避免手机休眠时系统自动杀掉该服务)
+        startForeground();
         Log.v(TAG,"onCreate");
     }
 
@@ -216,8 +204,6 @@ public class StepService extends Service implements SensorEventListener {
                     Log.v(TAG,"停止服务");
                     // 停止服务
                     isNeedStopService = true;
-                    // 停止服务为前台服务(手动停止服务的时候能够及时杀死当前服务)
-                    stopForeground();
                     StepService.this.stopSelf();
                 }
             }

@@ -8,6 +8,7 @@
 *  添加缓存机制.
 *  将Service置于一个独立的进程进行计步并通过messenger进行进程间传输.
 *  如非手动停止服务,服务会在销毁时重新启动服务.
+*  设置服务为前台服务,避免服务被杀的几率.
 
 
 ### Usage
@@ -20,7 +21,7 @@
 gradle:
 ```java
 dependencies {
-    compile 'cn.jianke.jkstepsensor:app:1.0.8'
+    compile 'cn.jianke.jkstepsensor:app:1.0.9'
 }
 ```
 maven:
@@ -28,14 +29,14 @@ maven:
 <dependency>
   <groupId>cn.jianke.jkstepsensor</groupId>
   <artifactId>app</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <type>pom</type>
 </dependency>
 ```
 
 lvy:
 ```java
-<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.8'>
+<dependency org='cn.jianke.jkstepsensor' name='app' rev='1.0.9'>
   <artifact name='$AID' ext='pom'></artifact>
 </dependency>
 ```
